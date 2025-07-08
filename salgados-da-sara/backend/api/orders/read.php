@@ -41,6 +41,11 @@ try {
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             extract($row);
             
+            // Converter códigos para texto
+            $status_text = Pedido::getStatusText($status);
+            $forma_pagamento_text = Pedido::getPaymentText($forma_pagamento);
+            $forma_entrega_text = Pedido::getDeliveryText($forma_entrega);
+            
             // Obter itens do pedido
             $pedido->codigo = $codigo;
             $itens_stmt = $pedido->getItens();
@@ -68,11 +73,11 @@ try {
                 ),
                 "itens" => $itens,
                 "subtotal" => floatval($valor),
-                "taxa_entrega" => $forma_entrega === 'entrega' ? 10.00 : 0.00,
+                "taxa_entrega" => $forma_entrega == Pedido::ENTREGA_DELIVERY ? 10.00 : 0.00,
                 "total" => floatval($valor),
-                "eh_entrega" => $forma_entrega === 'entrega',
-                "metodo_pagamento" => $forma_pagamento,
-                "status" => $status,
+                "eh_entrega" => $forma_entrega == Pedido::ENTREGA_DELIVERY,
+                "metodo_pagamento" => $forma_pagamento_text,
+                "status" => $status_text,
                 "motivo_rejeicao" => $observacoes,
                 "criado_em" => $data_pedido
             );

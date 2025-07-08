@@ -185,6 +185,11 @@ const Cart = {
                 addressSelection.style.display = 'none';
                 Cart.selectedAddress = null;
             }
+            
+            // Update navbar when delivery option changes (in case login status affects display)
+            if (typeof App !== 'undefined' && App.updateNavbarForLoginStatus) {
+                App.updateNavbarForLoginStatus();
+            }
         }
     },
 

@@ -82,7 +82,8 @@ try {
         'Não-Me-Toque' => 'NMT',
         'Boa Vista do Cadeado' => 'BVC',
         'Boa Vista do Incra' => 'BVI',
-        'Carazinho' => 'CZ'
+        'Carazinho' => 'CZ',
+        'Ibirubá' => 'IB'
     ];
 
     $sigla_cidade = $cidades_map[$data->city] ?? null;

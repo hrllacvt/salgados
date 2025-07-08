@@ -2,6 +2,22 @@
 class Pedido {
     private $conn;
     private $table_name = "pedido";
+    
+    // Constantes para status
+    const STATUS_PENDENTE = 1;
+    const STATUS_CONFIRMADO = 2;
+    const STATUS_PRONTO = 3;
+    const STATUS_ENTREGUE = 4;
+    const STATUS_REJEITADO = 5;
+    
+    // Constantes para forma de pagamento
+    const PAGAMENTO_DINHEIRO = 1;
+    const PAGAMENTO_CARTAO = 2;
+    const PAGAMENTO_PIX = 3;
+    
+    // Constantes para forma de entrega
+    const ENTREGA_RETIRADA = 1;
+    const ENTREGA_DELIVERY = 2;
 
     public $codigo;
     public $numero_pedido;
@@ -15,6 +31,62 @@ class Pedido {
     public $observacoes;
     public $codigo_pedido;
 
+    // Métodos para conversão de status
+    public static function getStatusCode($status) {
+        $statusMap = [
+            'pendente' => self::STATUS_PENDENTE,
+            'confirmado' => self::STATUS_CONFIRMADO,
+            'pronto' => self::STATUS_PRONTO,
+            'entregue' => self::STATUS_ENTREGUE,
+            'rejeitado' => self::STATUS_REJEITADO
+        ];
+        return $statusMap[$status] ?? self::STATUS_PENDENTE;
+    }
+    
+    public static function getStatusText($code) {
+        $statusMap = [
+            self::STATUS_PENDENTE => 'pendente',
+            self::STATUS_CONFIRMADO => 'confirmado',
+            self::STATUS_PRONTO => 'pronto',
+            self::STATUS_ENTREGUE => 'entregue',
+            self::STATUS_REJEITADO => 'rejeitado'
+        ];
+        return $statusMap[$code] ?? 'pendente';
+    }
+    
+    public static function getPaymentCode($payment) {
+        $paymentMap = [
+            'dinheiro' => self::PAGAMENTO_DINHEIRO,
+            'cartao' => self::PAGAMENTO_CARTAO,
+            'pix' => self::PAGAMENTO_PIX
+        ];
+        return $paymentMap[$payment] ?? self::PAGAMENTO_DINHEIRO;
+    }
+    
+    public static function getPaymentText($code) {
+        $paymentMap = [
+            self::PAGAMENTO_DINHEIRO => 'dinheiro',
+            self::PAGAMENTO_CARTAO => 'cartao',
+            self::PAGAMENTO_PIX => 'pix'
+        ];
+        return $paymentMap[$code] ?? 'dinheiro';
+    }
+    
+    public static function getDeliveryCode($delivery) {
+        $deliveryMap = [
+            'retirada' => self::ENTREGA_RETIRADA,
+            'entrega' => self::ENTREGA_DELIVERY
+        ];
+        return $deliveryMap[$delivery] ?? self::ENTREGA_RETIRADA;
+    }
+    
+    public static function getDeliveryText($code) {
+        $deliveryMap = [
+            self::ENTREGA_RETIRADA => 'retirada',
+            self::ENTREGA_DELIVERY => 'entrega'
+        ];
+        return $deliveryMap[$code] ?? 'retirada';
+    }
     public function __construct($db) {
         $this->conn = $db;
     }
@@ -38,16 +110,16 @@ class Pedido {
 
             // Sanitizar
             $this->numero_pedido = htmlspecialchars(strip_tags($this->numero_pedido));
-            $this->forma_pagamento = htmlspecialchars(strip_tags($this->forma_pagamento));
-            $this->forma_entrega = htmlspecialchars(strip_tags($this->forma_entrega));
-            $this->status = $this->status ?? 'pendente';
+            $this->forma_pagamento = self::getPaymentCode($this->forma_pagamento);
+            $this->forma_entrega = self::getDeliveryCode($this->forma_entrega);
+            $this->status = self::getStatusCode($this->status ?? 'pendente');
 
             // Bind values
             $stmt->bindParam(":numero_pedido", $this->numero_pedido);
             $stmt->bindParam(":valor", $this->valor);
-            $stmt->bindParam(":status", $this->status);
-            $stmt->bindParam(":forma_pagamento", $this->forma_pagamento);
-            $stmt->bindParam(":forma_entrega", $this->forma_entrega);
+            $stmt->bindParam(":status", $this->status, PDO::PARAM_INT);
+            $stmt->bindParam(":forma_pagamento", $this->forma_pagamento, PDO::PARAM_INT);
+            $stmt->bindParam(":forma_entrega", $this->forma_entrega, PDO::PARAM_INT);
             $stmt->bindParam(":codigo_cliente", $this->codigo_cliente);
             $stmt->bindParam(":observacoes", $this->observacoes);
 
@@ -164,7 +236,9 @@ class Pedido {
     }
 
     // Atualizar status do pedido
-    function updateStatus($novo_status, $observacoes = null) {
+    function updateStatus($novo_status_text, $observacoes = null) {
+        $novo_status = self::getStatusCode($novo_status_text);
+        
         $query = "UPDATE " . $this->table_name . " 
                   SET status = :status";
         
@@ -172,14 +246,14 @@ class Pedido {
             $query .= ", observacoes = :observacoes";
         }
         
-        if($novo_status === 'entregue') {
+        if($novo_status === self::STATUS_ENTREGUE) {
             $query .= ", data_entrega = CURRENT_TIMESTAMP";
         }
         
         $query .= " WHERE codigo = :codigo";
 
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":status", $novo_status);
+        $stmt->bindParam(":status", $novo_status, PDO::PARAM_INT);
         $stmt->bindParam(":codigo", $this->codigo);
         
         if($observacoes) {
@@ -187,7 +261,7 @@ class Pedido {
         }
 
         if($stmt->execute()) {
-            $this->status = $novo_status;
+            $this->status = $novo_status_text;
             if($observacoes) {
                 $this->observacoes = $observacoes;
             }

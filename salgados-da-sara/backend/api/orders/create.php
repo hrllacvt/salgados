@@ -56,7 +56,8 @@ if(!empty($data->user_id) && !empty($data->items) && !empty($data->total)) {
                 'Não-Me-Toque' => 'NMT',
                 'Boa Vista do Cadeado' => 'BVC',
                 'Boa Vista do Incra' => 'BVI',
-                'Carazinho' => 'CZ'
+                'Carazinho' => 'CZ',
+                'Ibirubá' => 'IB'
             ];
             
             $sigla_cidade = $cidades_map[$data->customer_data->city] ?? 'QN';

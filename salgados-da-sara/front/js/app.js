@@ -66,8 +66,13 @@ const App = {
             }
         });
 
-        // Show/hide logout button
+        // Show/hide login and logout buttons
+        const loginBtn = document.querySelector('.login-btn');
         const logoutBtn = document.querySelector('.logout-btn');
+        
+        if (loginBtn) {
+            loginBtn.style.display = isLoggedIn ? 'none' : 'block';
+        }
         if (logoutBtn) {
             logoutBtn.style.display = isLoggedIn ? 'block' : 'none';
         }
