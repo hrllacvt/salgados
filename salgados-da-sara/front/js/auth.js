@@ -1,12 +1,9 @@
-// Authentication Module
 const Auth = {
-    // Initialize default users (manter para fallback)
+  
     init: () => {
-        // Não precisamos mais inicializar usuários locais
-        // O backend já tem os dados necessários
+        
     },
 
-    // Validate password strength
     validatePassword: (password) => {
         const errors = [];
         
@@ -33,9 +30,7 @@ const Auth = {
         return errors;
     },
 
-    // Login user
     login: async (phone, password) => {
-        // Verificar se ApiClient está disponível
         if (typeof ApiClient === 'undefined') {
             return { success: false, message: 'Sistema não está disponível no momento' };
         }
@@ -57,25 +52,20 @@ const Auth = {
         }
     },
 
-    // Register user
     register: async (userData) => {
-        // Verificar se ApiClient está disponível
         if (typeof ApiClient === 'undefined') {
             return { success: false, message: 'Sistema não está disponível no momento' };
         }
         
-        // Validate password strength
         const passwordErrors = Auth.validatePassword(userData.password);
         if (passwordErrors.length > 0) {
             return { success: false, message: passwordErrors.join('. ') };
         }
 
-        // Check if passwords match
         if (userData.password !== userData.confirmPassword) {
             return { success: false, message: 'As senhas não coincidem' };
         }
 
-        // Validate required fields
         const requiredFields = ['name', 'phone', 'email', 'address', 'number', 'city', 'password'];
         for (const field of requiredFields) {
             if (!userData[field] || userData[field].trim() === '') {
@@ -92,7 +82,6 @@ const Auth = {
             }
         }
 
-        // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(userData.email)) {
             return { success: false, message: 'Email inválido' };
@@ -117,7 +106,6 @@ const Auth = {
                 Utils.storage.set('currentUser', response.usuario);
                 return { success: true, user: response.usuario };
             } else {
-                // Se há erros específicos por campo
                 if (response.erros) {
                     const errorMessages = Object.values(response.erros);
                     return { success: false, message: errorMessages.join('. ') };
@@ -130,9 +118,7 @@ const Auth = {
         }
     },
 
-    // Forgot password
     forgotPassword: async (phone) => {
-        // Verificar se ApiClient está disponível
         if (typeof ApiClient === 'undefined') {
             return { success: false, message: 'Sistema não está disponível no momento' };
         }
@@ -152,9 +138,7 @@ const Auth = {
         }
     },
 
-    // Admin login
     adminLogin: async (username, password) => {
-        // Verificar se ApiClient está disponível
         if (typeof ApiClient === 'undefined') {
             return { success: false, message: 'Sistema não está disponível no momento' };
         }
@@ -176,37 +160,30 @@ const Auth = {
         }
     },
 
-    // Logout
     logout: () => {
         Utils.storage.remove('currentUser');
         Utils.storage.remove('currentAdmin');
-        // Update navbar after logout
         if (typeof App !== 'undefined' && App.updateNavbarForLoginStatus) {
             App.updateNavbarForLoginStatus();
         }
     },
 
-    // Check if user is logged in
     isLoggedIn: () => {
         return Utils.storage.get('currentUser') !== null;
     },
 
-    // Check if admin is logged in
     isAdminLoggedIn: () => {
         return Utils.storage.get('currentAdmin') !== null;
     },
 
-    // Get current user
     getCurrentUser: () => {
         return Utils.storage.get('currentUser');
     },
 
-    // Get current admin
     getCurrentAdmin: () => {
         return Utils.storage.get('currentAdmin');
     },
 
-    // Check admin permissions
     hasAdminPermission: (permission) => {
         const admin = Auth.getCurrentAdmin();
         if (!admin) return false;
@@ -214,7 +191,6 @@ const Auth = {
         if (admin.funcao === 'super_admin') return true; // Super admin tem acesso total
         
         if (admin.funcao === 'admin') {
-            // Admin só tem acesso ao menu de pedidos
             return permission === 'pedidos';
         }
         
@@ -222,9 +198,7 @@ const Auth = {
     }
 };
 
-// Form handlers
 document.addEventListener('DOMContentLoaded', () => {
-    // Login form
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -250,7 +224,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Register form
     const registerForm = document.getElementById('register-form');
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
@@ -287,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Forgot password form
     const forgotForm = document.getElementById('forgot-password-form');
     if (forgotForm) {
         forgotForm.addEventListener('submit', async (e) => {
@@ -308,7 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Admin login form
     const adminLoginForm = document.getElementById('admin-login-form');
     if (adminLoginForm) {
         adminLoginForm.addEventListener('submit', async (e) => {
@@ -334,7 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Navigation functions
 function showLogin() {
     document.getElementById('login-page').style.display = 'flex';
     document.getElementById('register-page').style.display = 'none';
@@ -357,7 +327,6 @@ function logout() {
     Auth.logout();
     Utils.showMessage('Logout realizado com sucesso!');
     setTimeout(() => {
-        // Stay on main app but update navbar
         App.showMainApp();
         showPage('cardapio');
     }, 1000);
@@ -371,5 +340,4 @@ function adminLogout() {
     }, 1000);
 }
 
-// Initialize auth
 Auth.init();

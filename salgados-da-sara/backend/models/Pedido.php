@@ -108,13 +108,11 @@ class Pedido {
 
             $stmt = $this->conn->prepare($query);
 
-            // Sanitizar
             $this->numero_pedido = htmlspecialchars(strip_tags($this->numero_pedido));
             $this->forma_pagamento = self::getPaymentCode($this->forma_pagamento);
             $this->forma_entrega = self::getDeliveryCode($this->forma_entrega);
             $this->status = self::getStatusCode($this->status ?? 'pendente');
 
-            // Bind values
             $stmt->bindParam(":numero_pedido", $this->numero_pedido);
             $stmt->bindParam(":valor", $this->valor);
             $stmt->bindParam(":status", $this->status, PDO::PARAM_INT);

@@ -1,19 +1,15 @@
-// Profile Module
 const Profile = {
     currentSection: 'info',
 
-    // Initialize profile
     init: () => {
         Profile.loadProfile();
         Profile.setupForms();
     },
 
-    // Load profile data
     loadProfile: () => {
         const currentUser = Auth.getCurrentUser();
         if (!currentUser) return;
 
-        // Load user info
         document.getElementById('profile-name').value = currentUser.name || '';
         document.getElementById('profile-phone').value = currentUser.phone || '';
         document.getElementById('profile-email').value = currentUser.email || '';
@@ -22,11 +18,9 @@ const Profile = {
         document.getElementById('profile-complement').value = currentUser.complement || '';
         document.getElementById('profile-city').value = currentUser.city || '';
 
-        // Load addresses
         Profile.loadAddresses();
     },
 
-    // Load user addresses
     loadAddresses: () => {
         const currentUser = Auth.getCurrentUser();
         if (!currentUser) return;
@@ -63,9 +57,7 @@ const Profile = {
         `).join('');
     },
 
-    // Setup form handlers
     setupForms: () => {
-        // Profile info form
         const profileInfoForm = document.getElementById('profile-info-form');
         if (profileInfoForm) {
             profileInfoForm.addEventListener('submit', (e) => {
@@ -74,7 +66,6 @@ const Profile = {
             });
         }
 
-        // Change password form
         const changePasswordForm = document.getElementById('change-password-form');
         if (changePasswordForm) {
             changePasswordForm.addEventListener('submit', (e) => {
@@ -83,7 +74,6 @@ const Profile = {
             });
         }
 
-        // Add address form
         const addAddressForm = document.getElementById('add-address-form');
         if (addAddressForm) {
             addAddressForm.addEventListener('submit', (e) => {
@@ -93,14 +83,12 @@ const Profile = {
         }
     },
 
-    // Update user info
     updateUserInfo: () => {
         const currentUser = Auth.getCurrentUser();
         if (!currentUser) return;
 
         const formData = new FormData(document.getElementById('profile-info-form'));
         
-        // Validate required fields
         const requiredFields = ['name', 'phone', 'email', 'address', 'number', 'city'];
         for (const field of requiredFields) {
             if (!formData.get(field) || formData.get(field).trim() === '') {
@@ -117,7 +105,6 @@ const Profile = {
             }
         }
 
-        // Validate email format
         const email = formData.get('email');
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
@@ -125,7 +112,6 @@ const Profile = {
             return;
         }
 
-        // Check if email is already used by another user
         const users = Utils.storage.get('users') || [];
         const emailExists = users.find(user => user.email === email && user.id !== currentUser.id);
         if (emailExists) {
@@ -133,7 +119,6 @@ const Profile = {
             return;
         }
 
-        // Update user data
         const updatedUser = {
             ...currentUser,
             name: formData.get('name').trim(),
@@ -145,7 +130,6 @@ const Profile = {
             city: formData.get('city')
         };
 
-        // Update in users array
         const userIndex = users.findIndex(user => user.id === currentUser.id);
         if (userIndex >= 0) {
             users[userIndex] = updatedUser;
@@ -156,7 +140,6 @@ const Profile = {
         }
     },
 
-    // Change password
     changePassword: () => {
         const currentUser = Auth.getCurrentUser();
         if (!currentUser) return;
@@ -166,26 +149,22 @@ const Profile = {
         const newPassword = formData.get('newPassword');
         const confirmNewPassword = formData.get('confirmNewPassword');
 
-        // Validate current password
         if (currentPassword !== currentUser.password) {
             Utils.showMessage('Senha atual incorreta', 'error');
             return;
         }
 
-        // Validate new password
         const passwordErrors = Auth.validatePassword(newPassword);
         if (passwordErrors.length > 0) {
             Utils.showMessage(passwordErrors.join('. '), 'error');
             return;
         }
 
-        // Check if passwords match
         if (newPassword !== confirmNewPassword) {
             Utils.showMessage('As senhas não coincidem', 'error');
             return;
         }
 
-        // Update password
         const users = Utils.storage.get('users') || [];
         const userIndex = users.findIndex(user => user.id === currentUser.id);
         if (userIndex >= 0) {
@@ -197,19 +176,16 @@ const Profile = {
             
             Utils.showMessage('Senha alterada com sucesso!');
             
-            // Clear form
             document.getElementById('change-password-form').reset();
         }
     },
 
-    // Save new address
     saveNewAddress: () => {
         const currentUser = Auth.getCurrentUser();
         if (!currentUser) return;
 
         const formData = new FormData(document.getElementById('add-address-form'));
         
-        // Validate required fields
         const requiredFields = ['name', 'address', 'number', 'city'];
         for (const field of requiredFields) {
             if (!formData.get(field) || formData.get(field).trim() === '') {
@@ -234,20 +210,16 @@ const Profile = {
             createdAt: new Date().toISOString()
         };
 
-        // Save address
         const addresses = Utils.storage.get(`addresses_${currentUser.id}`) || [];
         addresses.push(newAddress);
         Utils.storage.set(`addresses_${currentUser.id}`, addresses);
 
-        // Reload addresses
         Profile.loadAddresses();
         
-        // Close modal and show success message
         closeAddressModal();
         Utils.showMessage('Endereço adicionado com sucesso!');
     },
 
-    // Edit address
     editAddress: (addressId) => {
         const currentUser = Auth.getCurrentUser();
         if (!currentUser) return;
@@ -257,7 +229,6 @@ const Profile = {
         
         if (!address) return;
 
-        // Show edit modal (similar to add modal but with pre-filled data)
         const modal = document.createElement('div');
         modal.className = 'modal';
         modal.innerHTML = `
@@ -319,14 +290,12 @@ const Profile = {
         modal.style.display = 'flex';
     },
 
-    // Update address
     updateAddress: (addressId, modal) => {
         const currentUser = Auth.getCurrentUser();
         if (!currentUser) return;
 
         const formData = new FormData(modal.querySelector('#edit-address-form'));
         
-        // Validate required fields
         const requiredFields = ['name', 'address', 'number', 'city'];
         for (const field of requiredFields) {
             if (!formData.get(field) || formData.get(field).trim() === '') {
@@ -361,7 +330,6 @@ const Profile = {
         }
     },
 
-    // Delete address
     deleteAddress: (addressId) => {
         if (!confirm('Tem certeza que deseja excluir este endereço?')) return;
 
@@ -377,25 +345,20 @@ const Profile = {
     }
 };
 
-// Global functions
 function showProfileSection(section) {
     Profile.currentSection = section;
     
-    // Update active button
     document.querySelectorAll('.profile-nav-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     event.target.classList.add('active');
     
-    // Hide all sections
     document.querySelectorAll('.profile-section').forEach(section => {
         section.style.display = 'none';
     });
     
-    // Show selected section
     document.getElementById(`profile-${section}`).style.display = 'block';
     
-    // Load section data
     if (section === 'addresses') {
         Profile.loadAddresses();
     }
@@ -414,7 +377,6 @@ function saveAddress() {
     Profile.saveNewAddress();
 }
 
-// Initialize profile when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('perfil-page')) {
         Profile.init();

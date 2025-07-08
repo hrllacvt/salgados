@@ -99,12 +99,10 @@ class Produto {
 
         $stmt = $this->conn->prepare($query);
 
-        // Sanitizar
         $this->nome = htmlspecialchars(strip_tags($this->nome));
         $this->sabor = htmlspecialchars(strip_tags($this->sabor));
         $this->eh_porcionado = $this->eh_porcionado ?? false;
 
-        // Bind values
         $stmt->bindParam(":nome", $this->nome);
         $stmt->bindParam(":preco", $this->preco);
         $stmt->bindParam(":sabor", $this->sabor);

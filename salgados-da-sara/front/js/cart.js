@@ -1,10 +1,8 @@
-// Módulo do Carrinho
 const Cart = {
     items: [],
     deliveryFee: 10.00,
     selectedAddress: null,
 
-    // Inicializar carrinho
     init: () => {
         Cart.loadCart();
         Cart.updateCartCount();
@@ -12,9 +10,7 @@ const Cart = {
         Cart.loadDeliveryFee();
     },
 
-    // Carregar taxa de entrega da API
     loadDeliveryFee: async () => {
-        // Verificar se ApiClient está disponível
         if (typeof ApiClient === 'undefined') {
             console.error('ApiClient não está disponível');
             return;
@@ -27,11 +23,9 @@ const Cart = {
             }
         } catch (error) {
             console.error('Erro ao carregar taxa de entrega:', error);
-            // Manter valor padrão
         }
     },
 
-    // Carregar carrinho do localStorage
     loadCart: () => {
         Cart.items = Utils.storage.get('cart') || [];
         Cart.renderCart();
@@ -39,15 +33,12 @@ const Cart = {
         Cart.updateCartSummary();
     },
 
-    // Salvar carrinho no localStorage
     saveCart: () => {
         Utils.storage.set('cart', Cart.items);
         Cart.updateCartCount();
     },
 
-    // Adicionar item ao carrinho
     addItem: (item) => {
-        // Verificar se o item já existe no carrinho
         const existingItemIndex = Cart.items.findIndex(cartItem => 
             cartItem.id === item.id && 
             cartItem.quantityType === item.quantityType &&
@@ -55,11 +46,9 @@ const Cart = {
         );
 
         if (existingItemIndex >= 0) {
-            // Atualizar quantidade
             Cart.items[existingItemIndex].quantity = (Cart.items[existingItemIndex].quantity || 1) + 1;
             Cart.items[existingItemIndex].totalPrice = Cart.items[existingItemIndex].totalPrice + item.totalPrice;
         } else {
-            // Adicionar novo item
             Cart.items.push({
                 ...item,
                 cartId: Utils.generateId(),
@@ -73,7 +62,6 @@ const Cart = {
         Cart.updateCartSummary();
     },
 
-    // Remover item do carrinho
     removeItem: (cartId) => {
         Cart.items = Cart.items.filter(item => item.cartId !== cartId);
         Cart.saveCart();
@@ -82,7 +70,6 @@ const Cart = {
         Utils.showMessage('Item removido do carrinho!');
     },
 
-    // Atualizar quantidade do item
     updateQuantity: (cartId, change) => {
         const item = Cart.items.find(item => item.cartId === cartId);
         if (!item) return;
@@ -94,7 +81,6 @@ const Cart = {
             return;
         }
 
-        // Calcular preço base por unidade
         const basePrice = item.totalPrice / (item.quantity || 1);
         
         item.quantity = newQuantity;
@@ -105,7 +91,6 @@ const Cart = {
         Cart.updateCartSummary();
     },
 
-    // Atualizar contador do carrinho na navbar
     updateCartCount: () => {
         const cartCountEl = document.getElementById('cart-count');
         if (cartCountEl) {
@@ -115,7 +100,6 @@ const Cart = {
         }
     },
 
-    // Renderizar itens do carrinho
     renderCart: () => {
         const cartItemsEl = document.getElementById('cart-items');
         if (!cartItemsEl) return;
@@ -161,7 +145,6 @@ const Cart = {
         `).join('');
     },
 
-    // Configurar opções de entrega
     setupDeliveryOptions: () => {
         const deliveryOptions = document.querySelectorAll('input[name="delivery"]');
         deliveryOptions.forEach(option => {
@@ -172,7 +155,6 @@ const Cart = {
         });
     },
 
-    // Alternar seleção de endereço
     toggleAddressSelection: () => {
         const isDelivery = document.querySelector('input[name="delivery"]:checked')?.value === 'delivery';
         const addressSelection = document.getElementById('delivery-address-selection');
@@ -186,14 +168,12 @@ const Cart = {
                 Cart.selectedAddress = null;
             }
             
-            // Update navbar when delivery option changes (in case login status affects display)
             if (typeof App !== 'undefined' && App.updateNavbarForLoginStatus) {
                 App.updateNavbarForLoginStatus();
             }
         }
     },
 
-    // Carregar opções de endereço
     loadAddressOptions: () => {
         const addressOptionsEl = document.getElementById('address-options');
         if (!addressOptionsEl) return;
@@ -209,7 +189,6 @@ const Cart = {
             return;
         }
 
-        // Obter endereço principal do usuário
         const mainAddress = {
             id: 'main',
             name: 'Endereço Principal',
@@ -219,7 +198,6 @@ const Cart = {
             city: currentUser.cidade
         };
 
-        // Obter endereços adicionais
         const additionalAddresses = Utils.storage.get(`addresses_${currentUser.id}`) || [];
         const allAddresses = [mainAddress, ...additionalAddresses];
 
@@ -235,10 +213,8 @@ const Cart = {
             </label>
         `).join('');
 
-        // Definir endereço selecionado padrão
         Cart.selectedAddress = mainAddress;
 
-        // Adicionar event listeners
         document.querySelectorAll('input[name="delivery-address"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 const selectedId = e.target.value;
@@ -247,7 +223,6 @@ const Cart = {
         });
     },
 
-    // Atualizar resumo do carrinho
     updateCartSummary: () => {
         const subtotalEl = document.getElementById('subtotal');
         const deliveryFeeEl = document.getElementById('delivery-fee');
@@ -265,19 +240,16 @@ const Cart = {
         deliveryFeeEl.textContent = Utils.formatCurrency(deliveryFee);
         totalEl.textContent = Utils.formatCurrency(total);
 
-        // Habilitar/desabilitar botão continuar
         if (continueBtn) {
             continueBtn.disabled = Cart.items.length === 0;
             continueBtn.style.opacity = Cart.items.length === 0 ? '0.5' : '1';
         }
     },
 
-    // Obter taxa de entrega
     getDeliveryFee: () => {
         return Cart.deliveryFee;
     },
 
-    // Limpar carrinho
     clearCart: () => {
         Cart.items = [];
         Cart.saveCart();
@@ -285,7 +257,6 @@ const Cart = {
         Cart.updateCartSummary();
     },
 
-    // Obter resumo do pedido
     getOrderSummary: () => {
         const subtotal = Cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
         const isDelivery = document.querySelector('input[name="delivery"]:checked')?.value === 'delivery';
@@ -306,14 +277,12 @@ const Cart = {
     }
 };
 
-// Funções globais
 function showPayment() {
     if (Cart.items.length === 0) {
         Utils.showMessage('Seu carrinho está vazio!', 'error');
         return;
     }
 
-    // Check if user is logged in before proceeding to payment
     if (!Auth.isLoggedIn()) {
         App.showAuthPages();
         Utils.showMessage('Você precisa fazer login para finalizar o pedido!', 'error');
@@ -338,7 +307,6 @@ async function finalizeOrder() {
 
     const orderSummary = Cart.getOrderSummary();
     
-    // Determinar dados do cliente para entrega
     let customerData = {
         name: currentUser.nome,
         phone: currentUser.telefone,
@@ -350,7 +318,6 @@ async function finalizeOrder() {
     };
     
     if (orderSummary.isDelivery && orderSummary.selectedAddress && orderSummary.selectedAddress.id !== 'main') {
-        // Usar endereço selecionado
         customerData = {
             ...customerData,
             address: orderSummary.selectedAddress.address,
@@ -360,7 +327,6 @@ async function finalizeOrder() {
         };
     }
     
-    // Preparar dados do pedido para a API
     const orderData = {
         user_id: currentUser.id,
         items: orderSummary.items.map(item => ({
@@ -384,13 +350,10 @@ async function finalizeOrder() {
         const response = await ApiClient.post(API_CONFIG.endpoints.createOrder, orderData);
         
         if (response.sucesso) {
-            // Limpar carrinho
             Cart.clearCart();
             
-            // Mostrar mensagem de sucesso
             Utils.showMessage(`Pedido ${response.numero_pedido} realizado com sucesso!`);
             
-            // Redirecionar para histórico
             setTimeout(() => {
                 showPage('historico');
             }, 2000);
@@ -403,7 +366,6 @@ async function finalizeOrder() {
     }
 }
 
-// Inicializar carrinho quando DOM estiver carregado
 document.addEventListener('DOMContentLoaded', () => {
     Cart.init();
 });

@@ -19,7 +19,7 @@ if(!empty($data->user_id) && !empty($data->items) && !empty($data->total)) {
     $pedido->status = 'pendente';
     $pedido->observacoes = $data->notes ?? '';
 
-    // Converter itens para o formato do banco
+    // itens para o formato do banco
     $itens = array();
     foreach($data->items as $item) {
         $itens[] = array(
@@ -33,7 +33,7 @@ if(!empty($data->user_id) && !empty($data->items) && !empty($data->total)) {
 
     if($pedido->create($itens)) {
         
-        // Se for entrega, criar registro de delivery
+        // Se for entrega criar delivery
         if($data->is_delivery && !empty($data->customer_data)) {
             $endereco_entrega = $data->customer_data->address . ', ' . $data->customer_data->number;
             if($data->customer_data->complement) {

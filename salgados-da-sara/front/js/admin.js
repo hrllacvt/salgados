@@ -1,8 +1,6 @@
-// Módulo Administrativo
 const Admin = {
     currentSection: 'pedidos',
 
-    // Inicializar painel administrativo
     init: () => {
         Admin.checkPermissions();
         Admin.loadOrders();
@@ -11,14 +9,11 @@ const Admin = {
         Admin.loadConfig();
     },
 
-    // Verificar permissões do administrador e ocultar/mostrar seções
     checkPermissions: () => {
         const admin = Auth.getCurrentAdmin();
         if (!admin) return;
 
-        // Ocultar seções baseado na função
         if (admin.funcao === 'admin') {
-            // Admin só vê pedidos
             const restrictedSections = ['produtos', 'administradores', 'configuracoes'];
             restrictedSections.forEach(section => {
                 const btn = document.querySelector(`.admin-btn[onclick*="${section}"]`);
@@ -33,9 +28,7 @@ const Admin = {
         }
     },
 
-    // Carregar pedidos para o administrador
     loadOrders: async () => {
-        // Verificar se ApiClient está disponível
         if (typeof ApiClient === 'undefined') {
             console.error('ApiClient não está disponível');
             return;
@@ -167,7 +160,6 @@ const Admin = {
         }
     },
 
-    // Excluir pedido
     deleteOrder: async (orderId) => {
         if (!Auth.hasAdminPermission('pedidos')) {
             Utils.showMessage('Você não tem permissão para esta ação!', 'error');
@@ -193,7 +185,6 @@ const Admin = {
         }
     },
 
-    // Obter rótulo do status
     getStatusLabel: (status) => {
         const labels = {
             'pendente': 'Aguardando Confirmação',
@@ -205,7 +196,6 @@ const Admin = {
         return labels[status] || status;
     },
 
-    // Obter rótulo do pagamento
     getPaymentLabel: (method) => {
         const labels = {
             'dinheiro': 'Dinheiro',
@@ -215,7 +205,6 @@ const Admin = {
         return labels[method] || method;
     },
 
-    // Atualizar status do pedido
     updateOrderStatus: async (orderId, newStatus) => {
         try {
             const response = await ApiClient.post(API_CONFIG.endpoints.updateOrderStatus, {
@@ -235,7 +224,6 @@ const Admin = {
         }
     },
 
-    // Mostrar modal de recusa
     showRejectModal: (orderId) => {
         const modal = document.createElement('div');
         modal.className = 'modal';
@@ -262,7 +250,6 @@ const Admin = {
         modal.style.display = 'flex';
     },
 
-    // Recusar pedido
     rejectOrder: async (orderId, reason, modal) => {
         if (!reason || reason.trim() === '') {
             Utils.showMessage('Por favor, informe o motivo da recusa!', 'error');
@@ -289,11 +276,9 @@ const Admin = {
         }
     },
 
-    // Carregar produtos para o administrador
     loadProducts: async () => {
         if (!Auth.hasAdminPermission('produtos')) return;
         
-        // Verificar se ApiClient está disponível
         if (typeof ApiClient === 'undefined') {
             console.error('ApiClient não está disponível');
             return;
@@ -332,7 +317,6 @@ const Admin = {
         }
     },
 
-    // Mostrar modal de adicionar produto
     showAddProduct: () => {
         if (!Auth.hasAdminPermission('produtos')) {
             Utils.showMessage('Você não tem permissão para esta ação!', 'error');
@@ -386,7 +370,6 @@ const Admin = {
         document.body.appendChild(modal);
         modal.style.display = 'flex';
 
-        // Manipular envio do formulário
         modal.querySelector('#add-product-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
@@ -404,7 +387,7 @@ const Admin = {
                 
                 if (response.sucesso) {
                     Admin.loadProducts();
-                    Menu.loadMenuItems(); // Atualizar menu
+                    Menu.loadMenuItems();
                     Utils.showMessage('Produto adicionado com sucesso!');
                     modal.remove();
                 } else {
@@ -417,14 +400,12 @@ const Admin = {
         });
     },
 
-    // Editar produto
     editProduct: async (productId) => {
         if (!Auth.hasAdminPermission('produtos')) {
             Utils.showMessage('Você não tem permissão para esta ação!', 'error');
             return;
         }
         
-        // Encontrar produto
         const product = Menu.items.find(item => item.id === productId);
         if (!product) return;
 
@@ -475,7 +456,6 @@ const Admin = {
         document.body.appendChild(modal);
         modal.style.display = 'flex';
 
-        // Manipular envio do formulário
         modal.querySelector('#edit-product-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
@@ -494,7 +474,7 @@ const Admin = {
                 
                 if (response.sucesso) {
                     Admin.loadProducts();
-                    Menu.loadMenuItems(); // Atualizar menu
+                    Menu.loadMenuItems(); 
                     Utils.showMessage('Produto atualizado com sucesso!');
                     modal.remove();
                 } else {
@@ -507,7 +487,6 @@ const Admin = {
         });
     },
 
-    // Excluir produto
     deleteProduct: async (productId) => {
         if (!Auth.hasAdminPermission('produtos')) {
             Utils.showMessage('Você não tem permissão para esta ação!', 'error');
@@ -522,7 +501,7 @@ const Admin = {
                 
                 if (response.sucesso) {
                     Admin.loadProducts();
-                    Menu.loadMenuItems(); // Atualizar menu
+                    Menu.loadMenuItems(); 
                     Utils.showMessage('Produto excluído com sucesso!');
                 } else {
                     Utils.showMessage(response.mensagem || 'Erro ao excluir produto', 'error');
@@ -534,11 +513,10 @@ const Admin = {
         }
     },
 
-    // Carregar administradores
+
     loadAdmins: async () => {
         if (!Auth.hasAdminPermission('administradores')) return;
         
-        // Verificar se ApiClient está disponível
         if (typeof ApiClient === 'undefined') {
             console.error('ApiClient não está disponível');
             return;
@@ -574,7 +552,6 @@ const Admin = {
         }
     },
 
-    // Mostrar modal de adicionar administrador
     showAddAdmin: () => {
         if (!Auth.hasAdminPermission('administradores')) {
             Utils.showMessage('Você não tem permissão para esta ação!', 'error');
@@ -616,7 +593,6 @@ const Admin = {
         document.body.appendChild(modal);
         modal.style.display = 'flex';
 
-        // Manipular envio do formulário
         modal.querySelector('#add-admin-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
@@ -644,7 +620,6 @@ const Admin = {
         });
     },
 
-    // Excluir administrador
     deleteAdmin: async (adminId) => {
         if (!Auth.hasAdminPermission('administradores')) {
             Utils.showMessage('Você não tem permissão para esta ação!', 'error');
@@ -670,11 +645,10 @@ const Admin = {
         }
     },
 
-    // Carregar configuração
     loadConfig: async () => {
         if (!Auth.hasAdminPermission('configuracoes')) return;
         
-        // Verificar se ApiClient está disponível
+    
         if (typeof ApiClient === 'undefined') {
             console.error('ApiClient não está disponível');
             return;
@@ -693,7 +667,6 @@ const Admin = {
         }
     },
 
-    // Atualizar preço da entrega
     updateDeliveryPrice: async () => {
         if (!Auth.hasAdminPermission('configuracoes')) {
             Utils.showMessage('Você não tem permissão para esta ação!', 'error');
@@ -711,7 +684,7 @@ const Admin = {
             
             if (response.sucesso) {
                 Utils.showMessage('Valor da entrega atualizado com sucesso!');
-                Cart.deliveryFee = newPrice; // Atualizar cache local
+                Cart.deliveryFee = newPrice;
             } else {
                 Utils.showMessage(response.mensagem || 'Erro ao atualizar configuração', 'error');
             }
@@ -722,9 +695,9 @@ const Admin = {
     }
 };
 
-// Funções globais
+
 function showAdminSection(section) {
-    // Verificar permissões
+
     if (!Auth.hasAdminPermission(section)) {
         Utils.showMessage('Você não tem permissão para acessar esta seção!', 'error');
         return;
@@ -732,21 +705,18 @@ function showAdminSection(section) {
     
     Admin.currentSection = section;
     
-    // Atualizar botão ativo
+
     document.querySelectorAll('.admin-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     event.target.classList.add('active');
     
-    // Ocultar todas as seções
     document.querySelectorAll('.admin-section').forEach(section => {
         section.style.display = 'none';
     });
     
-    // Mostrar seção selecionada
     document.getElementById(`admin-${section}`).style.display = 'block';
     
-    // Carregar dados da seção
     switch (section) {
         case 'pedidos':
             Admin.loadOrders();
@@ -775,7 +745,6 @@ function updateDeliveryPrice() {
     Admin.updateDeliveryPrice();
 }
 
-// Inicializar admin quando DOM estiver carregado
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('admin-page')) {
         Admin.init();

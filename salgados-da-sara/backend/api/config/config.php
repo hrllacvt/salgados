@@ -29,7 +29,6 @@ try {
             $key = isset($_GET['key']) ? $_GET['key'] : null;
             
             if($key === 'taxa_entrega') {
-                // Buscar na tabela preco_delivery
                 $query = "SELECT valor FROM preco_delivery WHERE descricao = 'Taxa padrão de entrega' LIMIT 1";
                 $stmt = $db->prepare($query);
                 $stmt->execute();
@@ -49,7 +48,6 @@ try {
                     ));
                 }
             } else {
-                // Retornar configurações padrão
                 http_response_code(200);
                 echo json_encode(array(
                     "sucesso" => true,
@@ -69,7 +67,6 @@ try {
             if(!empty($data->key) && isset($data->value)) {
                 
                 if($data->key === 'taxa_entrega') {
-                    // Atualizar na tabela preco_delivery
                     $query = "UPDATE preco_delivery SET valor = :valor WHERE descricao = 'Taxa padrão de entrega'";
                     $stmt = $db->prepare($query);
                     $stmt->bindParam(":valor", $data->value);

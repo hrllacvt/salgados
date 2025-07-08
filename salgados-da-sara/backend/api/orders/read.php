@@ -46,7 +46,7 @@ try {
             $forma_pagamento_text = Pedido::getPaymentText($forma_pagamento);
             $forma_entrega_text = Pedido::getDeliveryText($forma_entrega);
             
-            // Obter itens do pedido
+            // itens do pedido
             $pedido->codigo = $codigo;
             $itens_stmt = $pedido->getItens();
             $itens = array();

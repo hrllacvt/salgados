@@ -28,7 +28,6 @@ const API_CONFIG = {
     }
 };
 
-// Função para fazer requisições HTTP
 const ApiClient = {
     async request(endpoint, options = {}) {
         const url = `${API_CONFIG.baseURL}${endpoint}`;
@@ -44,7 +43,7 @@ const ApiClient = {
         try {
             const response = await fetch(url, config);
             
-            // Verificar se a resposta é HTML (página de erro)
+            // Verificar se a resposta é HTML 
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('text/html')) {
                 throw new Error('Servidor retornou HTML em vez de JSON. Verifique se o backend está rodando.');
@@ -60,7 +59,6 @@ const ApiClient = {
         } catch (error) {
             console.error('Erro na API:', error.message);
             
-            // Se for erro de conexão, mostrar mensagem mais clara
             if (error.message.includes('fetch')) {
                 throw new Error('Não foi possível conectar ao servidor. Verifique se o backend está rodando.');
             }
@@ -95,6 +93,5 @@ const ApiClient = {
     }
 };
 
-// Tornar disponível globalmente IMEDIATAMENTE
 window.API_CONFIG = API_CONFIG;
 window.ApiClient = ApiClient;

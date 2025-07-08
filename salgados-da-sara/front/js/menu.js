@@ -1,22 +1,17 @@
-// Menu Module
 const Menu = {
-    // Menu items data (cache local)
     items: [],
     currentFilter: 'todos',
     currentItem: null,
 
-    // Initialize menu
     init: () => {
         Menu.loadMenuItems();
         Menu.setupQuantityModal();
     },
 
-    // Load menu items from API
     loadMenuItems: async () => {
-        // Verificar se ApiClient está disponível
         if (typeof ApiClient === 'undefined') {
             console.error('ApiClient não está disponível');
-            Menu.renderMenuItems(); // Renderizar vazio
+            Menu.renderMenuItems(); 
             return;
         }
         
@@ -28,21 +23,20 @@ const Menu = {
                 Menu.renderMenuItems();
             } else {
                 console.error('Erro ao carregar produtos:', response.mensagem);
-                Menu.renderMenuItems(); // Renderizar vazio
+                Menu.renderMenuItems(); 
             }
         } catch (error) {
             console.error('Erro ao carregar menu:', error);
             Utils.showMessage('Erro ao carregar cardápio. Tente novamente.', 'error');
-            Menu.renderMenuItems(); // Renderizar vazio
+            Menu.renderMenuItems(); 
         }
     },
 
-    // Render menu items
+    
     renderMenuItems: () => {
         const menuItemsEl = document.getElementById('menu-items');
         if (!menuItemsEl) return;
 
-        // Filter items
         const filteredItems = Menu.currentFilter === 'todos' 
             ? Menu.items 
             : Menu.items.filter(item => item.categoria === Menu.currentFilter);
@@ -69,7 +63,6 @@ const Menu = {
         `).join('');
     },
 
-    // Get category display name
     getCategoryName: (category) => {
         const names = {
             'salgados': 'Salgados Fritos',
@@ -81,11 +74,9 @@ const Menu = {
         return names[category] || category;
     },
 
-    // Filter menu
     filterMenu: (category) => {
         Menu.currentFilter = category;
         
-        // Update active button
         document.querySelectorAll('.category-btn').forEach(btn => {
             btn.classList.remove('active');
         });
@@ -94,9 +85,7 @@ const Menu = {
         Menu.renderMenuItems();
     },
 
-    // Select menu item
     selectItem: (itemId) => {
-        // Check if user is logged in before allowing to add items
         if (!Auth.isLoggedIn()) {
             App.showAuthPages();
             Utils.showMessage('Você precisa fazer login para adicionar itens ao carrinho!', 'error');
@@ -107,7 +96,6 @@ const Menu = {
         
         if (Menu.currentItem) {
             if (Menu.currentItem.eh_porcionado) {
-                // For portioned items, add directly to cart
                 Cart.addItem({
                     ...Menu.currentItem,
                     quantityType: 'porção',
@@ -121,7 +109,6 @@ const Menu = {
         }
     },
 
-    // Show quantity selection modal
     showQuantityModal: () => {
         if (!Menu.currentItem) return;
 
@@ -133,26 +120,20 @@ const Menu = {
         const unitQuantity = document.getElementById('unit-quantity');
         const unitCount = document.getElementById('unit-count');
 
-        // Set item name
         itemName.textContent = Menu.currentItem.nome;
 
-        // Set prices
         priceCento.textContent = Utils.formatCurrency(Menu.currentItem.preco);
         priceMeioCento.textContent = Utils.formatCurrency(Menu.currentItem.preco / 2);
         priceUnidade.textContent = Utils.formatCurrency(Menu.currentItem.preco / 100);
 
-        // Reset form
         document.querySelector('input[name="quantity-type"][value="cento"]').checked = true;
         unitCount.value = 10;
         unitQuantity.style.display = 'none';
 
-        // Show modal
         modal.style.display = 'flex';
     },
 
-    // Setup quantity modal events
     setupQuantityModal: () => {
-        // Handle quantity type change
         document.querySelectorAll('input[name="quantity-type"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 const unitQuantity = document.getElementById('unit-quantity');
@@ -164,7 +145,6 @@ const Menu = {
             });
         });
 
-        // Handle unit count change
         document.getElementById('unit-count').addEventListener('input', (e) => {
             const count = parseInt(e.target.value);
             if (count < 10) {
@@ -174,16 +154,13 @@ const Menu = {
     }
 };
 
-// Global functions
 function filterMenu(category) {
     Menu.currentFilter = category;
     
-    // Update active button
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     
-    // Find and activate the clicked button
     const activeBtn = Array.from(document.querySelectorAll('.category-btn')).find(btn => 
         btn.textContent.toLowerCase().includes(category) || 
         (category === 'todos' && btn.textContent === 'TODOS')
@@ -220,7 +197,6 @@ function addToCart() {
     Utils.showMessage(`${Menu.currentItem.nome} (${quantityLabel}) adicionado ao carrinho!`);
 }
 
-// Initialize menu when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('menu-items')) {
         Menu.init();

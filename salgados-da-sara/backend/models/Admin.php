@@ -21,12 +21,10 @@ class Admin {
 
         $stmt = $this->conn->prepare($query);
 
-        // Sanitizar
         $this->login = htmlspecialchars(strip_tags($this->login));
         $this->senha = password_hash($this->senha, PASSWORD_DEFAULT);
         $this->super_admin = $this->super_admin ?? false;
 
-        // Bind values
         $stmt->bindParam(":login", $this->login);
         $stmt->bindParam(":senha", $this->senha);
         $stmt->bindParam(":super_admin", $this->super_admin, PDO::PARAM_BOOL);

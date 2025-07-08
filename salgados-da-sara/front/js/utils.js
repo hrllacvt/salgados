@@ -1,6 +1,4 @@
-// Funções Utilitárias
 const Utils = {
-    // Formatar moeda
     formatCurrency: (value) => {
         return new Intl.NumberFormat('pt-BR', {
             style: 'currency',
@@ -8,7 +6,6 @@ const Utils = {
         }).format(value);
     },
 
-    // Formatar data
     formatDate: (date) => {
         return new Intl.DateTimeFormat('pt-BR', {
             day: '2-digit',
@@ -19,19 +16,16 @@ const Utils = {
         }).format(new Date(date));
     },
 
-    // Gerar ID único
     generateId: () => {
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
     },
 
-    // Gerar número do pedido
     generateOrderNumber: () => {
         const orderNumber = Math.floor(Math.random() * 1000) + 1;
         const date = new Date().toLocaleDateString('pt-BR').replace(/\//g, '');
         return `#${orderNumber.toString().padStart(3, '0')}-${date}`;
     },
 
-    // Mostrar mensagem
     showMessage: (message, type = 'success') => {
         const messageEl = document.getElementById('message');
         messageEl.textContent = message;
@@ -43,7 +37,6 @@ const Utils = {
         }, 3000);
     },
 
-    // Validar formulário
     validateForm: (formData, rules) => {
         const errors = {};
 
@@ -80,20 +73,17 @@ const Utils = {
         return errors;
     },
 
-    // Validar email
     isValidEmail: (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     },
 
-    // Validar telefone
     isValidPhone: (phone) => {
         const phoneRegex = /^\(\d{2}\)\s\d{4,5}-\d{4}$/;
         const cleanPhone = phone.replace(/\D/g, '');
         return phoneRegex.test(phone) || cleanPhone.length >= 10;
     },
 
-    // Formatar telefone
     formatPhone: (phone) => {
         const cleaned = phone.replace(/\D/g, '');
         const match = cleaned.match(/^(\d{2})(\d{4,5})(\d{4})$/);
@@ -103,12 +93,10 @@ const Utils = {
         return phone;
     },
 
-    // Limpar telefone (remover formatação)
     cleanPhone: (phone) => {
         return phone.replace(/\D/g, '');
     },
 
-    // Calcular preço do item
     calculateItemPrice: (basePrice, quantityType, unitCount = 1) => {
         const price = parseFloat(basePrice);
         
@@ -126,7 +114,6 @@ const Utils = {
         }
     },
 
-    // Obter rótulo da quantidade
     getQuantityLabel: (quantityType, unitCount = 1) => {
         switch (quantityType) {
             case 'cento':
@@ -142,7 +129,6 @@ const Utils = {
         }
     },
 
-    // Função debounce
     debounce: (func, wait) => {
         let timeout;
         return function executedFunction(...args) {
@@ -155,22 +141,18 @@ const Utils = {
         };
     },
 
-    // Clonar objeto profundamente
     deepClone: (obj) => {
         return JSON.parse(JSON.stringify(obj));
     },
 
-    // Verificar se usuário está logado
     isLoggedIn: () => {
         return localStorage.getItem('currentUser') !== null;
     },
 
-    // Obter usuário atual
     getCurrentUser: () => {
         return JSON.parse(localStorage.getItem('currentUser') || 'null');
     },
 
-    // Definir estado de carregamento
     setLoading: (isLoading) => {
         const loadingEl = document.getElementById('loading');
         if (isLoading) {
@@ -180,7 +162,6 @@ const Utils = {
         }
     },
 
-    // Rolagem suave para elemento
     smoothScrollTo: (element) => {
         element.scrollIntoView({
             behavior: 'smooth',
@@ -188,7 +169,6 @@ const Utils = {
         });
     },
 
-    // Auxiliares do localStorage
     storage: {
         get: (key) => {
             try {
@@ -217,5 +197,4 @@ const Utils = {
     }
 };
 
-// Tornar Utils disponível globalmente
 window.Utils = Utils;
